@@ -20,6 +20,8 @@ Build a custom HTTP server without using high-level web frameworks or built-in H
 ## How to Run
 Run the server using Python:
 ```bash
-python server.py
+cd python-server
+
+make run
 ```
 Then visit: `http://127.0.0.1:9999/`
