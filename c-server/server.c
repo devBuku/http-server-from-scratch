@@ -5,15 +5,52 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+int handle_client(int client_socket_fd)
+{
+  ssize_t n = 0;
+  char buffer[100];
+
+  while (1)
+  {
+    memset(buffer, 0, sizeof(buffer));
+
+    n = read(client_socket_fd, buffer, sizeof(buffer) - 1);
+
+    if (n < 0)
+    {
+      perror("read(client)");
+      return -1;
+    }
+    else if (n == 0)
+    {
+      printf("Connection closed gracefully!!!\n");
+      break;
+    }
+
+    printf("=> %s\n", buffer);
+  }
+
+  return 0;
+}
+
 int main()
 {
   int bind_val = 0;
   int listen_val = 0;
   int ret = 0;
 
-  int tcp_socket_fd = socket(AF_INET,     /* Domain (IPv4) */
-                             SOCK_STREAM, /* Type (TCP) */
-                             0            /* Protocol */
+  // is a structure used to describe an IPv4 network address.
+  struct sockaddr_in bind_addr;
+
+  int tcp_socket_fd = 0;
+  int client_socket_fd = 0;
+
+  // clean the address structure by setting all bytes of bind_addr to 0
+  memset(&bind_addr, 0, sizeof(bind_addr));
+
+  tcp_socket_fd = socket(AF_INET,     /* Domain (IPv4) */
+                         SOCK_STREAM, /* Type (TCP) */
+                         0            /* Protocol */
   );
 
   // Error Handling if file descriptor == -1
@@ -29,12 +66,6 @@ int main()
   /*
    * Since we are creating a server we will use bind
    */
-
-  // is a structure used to describe an IPv4 network address.
-  struct sockaddr_in bind_addr;
-
-  // clean the address structure by setting all bytes of bind_addr to 0
-  memset(&bind_addr, 0, sizeof(bind_addr));
 
   // specify the port; htons() converts the number from the machine's byte order to network byte order.
   bind_addr.sin_port = htons(6969);
@@ -66,7 +97,27 @@ int main()
     goto exit;
   }
 
-  printf("Socket is listening on port %d....\n", ntohs(bind_addr.sin_port));
+  while (1)
+  {
+
+    printf("Server is listening on port %d....\n", ntohs(bind_addr.sin_port));
+
+    client_socket_fd = accept(tcp_socket_fd, NULL, NULL);
+
+    if (client_socket_fd < 0)
+    {
+      perror("accept()");
+      continue;
+    }
+
+    printf("Got a connection.\n");
+
+    if (handle_client(client_socket_fd) < 0)
+    {
+      ret = 1;
+      goto exit;
+    }
+  }
 
 exit:
   close(tcp_socket_fd);
