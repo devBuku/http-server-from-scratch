@@ -28,6 +28,7 @@ int handle_client(int client_socket_fd)
     else if (n == 0)
     {
       printf("Connection closed gracefully!!!\n");
+      break;
     }
 
     printf("Request:\n%s", buffer);
