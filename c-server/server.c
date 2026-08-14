@@ -4,11 +4,14 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 int handle_client(int client_socket_fd)
 {
   ssize_t n = 0;
   char buffer[100];
+
+  printf("\n----\n");
 
   while (1)
   {
@@ -27,8 +30,9 @@ int handle_client(int client_socket_fd)
       break;
     }
 
-    printf("=> %s\n", buffer);
+    printf("%s", buffer);
   }
+  printf("\n----\n");
 
   return 0;
 }
@@ -38,6 +42,7 @@ int main()
   int bind_val = 0;
   int listen_val = 0;
   int ret = 0;
+  int enabled = true;
 
   // is a structure used to describe an IPv4 network address.
   struct sockaddr_in bind_addr;
@@ -60,6 +65,8 @@ int main()
     perror("Socket error");
     return 1;
   }
+
+  (void)setsockopt(tcp_socket_fd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(enabled)); // TODO: what is this doing (on a high level it is telling to reuse the socket but what are those variable)
 
   // printf("Socket creation successfull: %d\n", tcp_socket_fd);
 
