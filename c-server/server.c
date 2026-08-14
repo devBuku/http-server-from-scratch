@@ -9,7 +9,8 @@
 int handle_client(int client_socket_fd)
 {
   ssize_t n = 0;
-  char buffer[100];
+  char buffer[1024];
+  char *hello = "HTTP/1.0 200 OK\r\n\r\n<h1>Hello, World!</h1>";
 
   printf("\n----\n");
 
@@ -27,10 +28,15 @@ int handle_client(int client_socket_fd)
     else if (n == 0)
     {
       printf("Connection closed gracefully!!!\n");
-      break;
     }
 
-    printf("%s", buffer);
+    printf("Request:\n%s", buffer);
+
+    (void)write(client_socket_fd, hello, strlen(hello));
+
+    close(client_socket_fd);
+
+    break;
   }
   printf("\n----\n");
 
