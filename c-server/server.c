@@ -22,7 +22,7 @@ int handle_client(int client_socket_fd)
 
     if (n < 0)
     {
-      perror("read(client)");
+      perror("read() in handle_client");
       return -1;
     }
     else if (n == 0)
